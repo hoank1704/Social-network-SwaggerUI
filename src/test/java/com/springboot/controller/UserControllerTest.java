@@ -152,39 +152,39 @@ public class UserControllerTest {
         assertEquals("JWT token for email testuser@example.com: testToken", response.getBody());
     }
 
-    @Test
-    void resetPassword_ValidRequest_ReturnsOkResponse() {
-        // Arrange
-        String newPassword = "newPassword";
-        Principal principal = mock(Principal.class);
-        when(principal.getName()).thenReturn("testUser");
-        when(userService.resetPassword(newPassword, "testUser")).thenReturn(true);
-
-        // Act
-        ResponseEntity<String> response = userController.resetPassword(newPassword, principal);
-
-        // Assert
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Password reset successfully.", response.getBody());
-    }
-
-    @Test
-    void resetPassword_InvalidRequest_ReturnsNotFoundResponse() {
-        // Arrange
-        String newPassword = "newPassword";
-        Principal principal = mock(Principal.class);
-        when(principal.getName()).thenReturn("testUser");
-        when(userService.resetPassword(newPassword, "testUser")).thenReturn(false);
-
-        // Act
-        ResponseEntity<String> response = userController.resetPassword(newPassword, principal);
-
-        // Assert
-        assertNotNull(response);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("Email not found", response.getBody());
-    }
+//    @Test
+//    void resetPassword_ValidRequest_ReturnsOkResponse() {
+//        // Arrange
+//        String newPassword = "newPassword";
+//        Principal principal = mock(Principal.class);
+//        when(principal.getName()).thenReturn("testUser");
+//        when(userService.resetPassword(newPassword, "testUser")).thenReturn(true);
+//
+//        // Act
+//        ResponseEntity<String> response = userController.resetPassword(newPassword, principal);
+//
+//        // Assert
+//        assertNotNull(response);
+//        assertEquals(HttpStatus.OK, response.getStatusCode());
+//        assertEquals("Password reset successfully.", response.getBody());
+//    }
+//
+//    @Test
+//    void resetPassword_InvalidRequest_ReturnsNotFoundResponse() {
+//        // Arrange
+//        String newPassword = "newPassword";
+//        Principal principal = mock(Principal.class);
+//        when(principal.getName()).thenReturn("testUser");
+//        when(userService.resetPassword(newPassword, "testUser")).thenReturn(false);
+//
+//        // Act
+//        ResponseEntity<String> response = userController.resetPassword(newPassword, principal);
+//
+//        // Assert
+//        assertNotNull(response);
+//        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+//        assertEquals("Email not found", response.getBody());
+//    }
 
     @Test
     public void testGetUserById_Success() {

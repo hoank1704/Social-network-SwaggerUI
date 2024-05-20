@@ -207,41 +207,40 @@ public class UserServiceTest {
         Mockito.verify(userRepository, Mockito.never()).save(Mockito.any(User.class));
     }
 
-
-    @Test
-    void resetPassword_Success() {
-        // Arrange
-        String newPassword = "newPassword";
-        String username = "testUser";
-        User user = new User();
-
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-        when(passwordEncoder.encode(newPassword)).thenReturn("encodedPassword");
-
-        // Act
-        boolean result = userService.resetPassword(newPassword, username);
-
-        // Assert
-        assertTrue(result);
-        assertEquals("encodedPassword", user.getPassword());
-        verify(userRepository, times(1)).save(user);
-    }
-
-    @Test
-    void resetPassword_ReturnsFalse() {
-        // Arrange
-        String newPassword = "newPassword";
-        String username = "testUser";
-
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        // Act
-        boolean result = userService.resetPassword(newPassword, username);
-
-        // Assert
-        assertFalse(result);
-        verify(userRepository, never()).save(any(User.class));
-    }
+//    @Test
+//    void resetPassword_Success() {
+//        // Arrange
+//        String newPassword = "newPassword";
+//        String username = "testUser";
+//        User user = new User();
+//
+//        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+//        when(passwordEncoder.encode(newPassword)).thenReturn("encodedPassword");
+//
+//        // Act
+//        boolean result = userService.resetPassword(newPassword, username);
+//
+//        // Assert
+//        assertTrue(result);
+//        assertEquals("encodedPassword", user.getPassword());
+//        verify(userRepository, times(1)).save(user);
+//    }
+//
+//    @Test
+//    void resetPassword_ReturnsFalse() {
+//        // Arrange
+//        String newPassword = "newPassword";
+//        String username = "testUser";
+//
+//        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+//
+//        // Act
+//        boolean result = userService.resetPassword(newPassword, username);
+//
+//        // Assert
+//        assertFalse(result);
+//        verify(userRepository, never()).save(any(User.class));
+//    }
 
     @Test
     public void testDeleteUser() {

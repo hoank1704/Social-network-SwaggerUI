@@ -1,6 +1,6 @@
 package com.springboot.payload.request;
 
-import com.springboot.entities.Role;
+import com.springboot.entities.ERole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,5 +21,6 @@ public class UserCreateRequest {
     private Date birthDate;
     private String job;
     private String location;
-    private Set<Role> roles = new HashSet<>();
+    //private Set<Role> roles = new HashSet<>();
+    private ERole role;
 }

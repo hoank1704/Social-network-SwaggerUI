@@ -2,7 +2,6 @@ package com.springboot.security.jwt;
 
 import java.io.IOException;
 
-import com.springboot.controllers.UserController;
 import com.springboot.security.services.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -47,14 +46,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
-
-//    private String extractTokenFromRequest(HttpServletRequest request) {
-//        String bearerToken = request.getHeader("Authorization");
-//        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-//            return bearerToken.substring(7); // Loại bỏ "Bearer " để chỉ lấy token
-//        }
-//        return null;
-//    }
 
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");

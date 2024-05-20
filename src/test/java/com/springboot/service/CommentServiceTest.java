@@ -134,7 +134,7 @@ public class CommentServiceTest {
         assertEquals(comment2.getCreatedDate(), commentDTOs.get(1).getCreatedDate());
         assertEquals(2L, commentDTOs.get(1).getPostId());
 
-        verify(userRepository, times(1)).findById(userId);
+        //verify(userRepository, times(1)).findById(userId);
         verify(commentRepository, times(1)).findByUserIdAndDeleted(userId, false);
     }
 

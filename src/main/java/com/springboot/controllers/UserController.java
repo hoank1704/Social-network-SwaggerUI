@@ -7,6 +7,7 @@ import com.springboot.payload.request.UserUpdateRequest;
 import com.springboot.payload.response.AvatarResponse;
 import com.springboot.payload.response.ImagePostResponse;
 import com.springboot.security.jwt.JwtUtils;
+import com.springboot.security.services.UserDetailsImpl;
 import com.springboot.service.FriendshipService;
 import com.springboot.service.ImageService;
 import com.springboot.service.UserService;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -47,8 +49,6 @@ public class UserController {
     private FriendshipService friendshipService;
     @Autowired
     private HttpServletRequest request;
-
-    private List<String> revokedTokens = new ArrayList<>();
 
     // Xuất file excel
     @SecurityRequirement(name = "Bearer Authentication")
@@ -96,16 +96,38 @@ public class UserController {
     }
 
     // Lay User theo Id
+//    @SecurityRequirement(name = "Bearer Authentication")
+//    @GetMapping("/getUserById/{id}")
+//    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+//    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+//        try {
+//            UserDTO userDTO = userService.getUserById(id);
+//            return new ResponseEntity<>(userDTO, HttpStatus.OK);
+//        } catch (Exception e) {
+//            return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
+//        }
+//    }
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/getUserById/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
+    public ResponseEntity<?> getUserById(@PathVariable Long id, Authentication authentication) {
         try {
+            // Lấy thông tin người dùng hiện tại
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            Long currentUserId = userDetails.getId();
+
+            // Nếu người dùng không phải là ROLE_ADMIN và đang yêu cầu thông tin của người khác
+            if (userDetails.getAuthorities().stream().noneMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN")) && !currentUserId.equals(id)) {
+                return new ResponseEntity<>("You do not have permission to view this user's information", HttpStatus.FORBIDDEN);
+            }
+
             UserDTO userDTO = userService.getUserById(id);
             return new ResponseEntity<>(userDTO, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
         }
     }
+
 
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping(value = "/uploadAvatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

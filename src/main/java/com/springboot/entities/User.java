@@ -47,13 +47,14 @@ public class User {
     private String job;
     private String location;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable( name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-
-    @JsonIgnore
-    private Set<Role> roles = new HashSet<>();
+//    @ManyToMany(fetch = FetchType.EAGER)
+//    @JoinTable( name = "user_roles",
+//            joinColumns = @JoinColumn(name = "user_id"),
+//            inverseJoinColumns = @JoinColumn(name = "role_id"))
+//    @JsonIgnore
+//    private Set<Role> roles = new HashSet<>();
+    @Enumerated(EnumType.STRING)
+    private ERole role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore

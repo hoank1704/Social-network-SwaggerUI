@@ -1,6 +1,5 @@
 package com.springboot.service;
 
-import com.springboot.config.WebSecurityConfig;
 import com.springboot.dto.UserDTO;
 import com.springboot.entities.*;
 import com.springboot.payload.request.SignupRequest;
@@ -8,7 +7,6 @@ import com.springboot.payload.request.UserUpdateRequest;
 import com.springboot.payload.response.AvatarResponse;
 import com.springboot.repository.FriendshipRepository;
 import com.springboot.repository.ResetTokenRepository;
-import com.springboot.repository.RoleRepository;
 import com.springboot.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +22,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.springboot.entities.ERole.ROLE_USER;
+
 @Service
 public class UserService {
     @Autowired
@@ -34,8 +34,8 @@ public class UserService {
     private FriendshipRepository friendshipRepository;
     @Autowired
     private ImageService imageService;
-    @Autowired
-    private RoleRepository roleRepository;
+//    @Autowired
+//    private RoleRepository roleRepository;
     @Autowired
     private ResetTokenRepository resetTokenRepository;
 
@@ -160,13 +160,14 @@ public class UserService {
         User user = new User(signupRequest.getUsername(),
                 signupRequest.getEmail(),
                 passwordEncoder.encode(signupRequest.getPassword()));
+        user.setRole(ROLE_USER);
 
         // Set default role as "user"
-        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-        Set<Role> roles = new HashSet<>();
-        roles.add(userRole);
-        user.setRoles(roles);
+//        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+//                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+//        Set<Role> roles = new HashSet<>();
+//        roles.add(userRole);
+//        user.setRoles(roles);
 
         userRepository.save(user);
         return user;
