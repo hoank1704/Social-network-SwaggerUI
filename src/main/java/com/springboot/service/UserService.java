@@ -34,8 +34,7 @@ public class UserService {
     private FriendshipRepository friendshipRepository;
     @Autowired
     private ImageService imageService;
-//    @Autowired
-//    private RoleRepository roleRepository;
+
     @Autowired
     private ResetTokenRepository resetTokenRepository;
 
@@ -161,14 +160,6 @@ public class UserService {
                 signupRequest.getEmail(),
                 passwordEncoder.encode(signupRequest.getPassword()));
         user.setRole(ROLE_USER);
-
-        // Set default role as "user"
-//        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-//                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-//        Set<Role> roles = new HashSet<>();
-//        roles.add(userRole);
-//        user.setRoles(roles);
-
         userRepository.save(user);
         return user;
     }

@@ -20,13 +20,13 @@ import javax.crypto.SecretKey;
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    @Value("${bezkoder.app.jwtSecret}")
+    @Value("${hoank17.app.jwtSecret}")
     private String jwtSecret;
 
-    @Value("${bezkoder.app.jwtExpirationMs}")
+    @Value("${hoank17.app.jwtExpirationMs}")
     private Integer jwtExpirationMs;
 
-    @Value("${bezkoder.app.jwtExpChangePass}")
+    @Value("${hoank17.app.jwtExpChangePass}")
     private Integer jwtExpChangePass;
 
     @Autowired
@@ -98,4 +98,3 @@ public class JwtUtils {
         return false;
     }
 }
-

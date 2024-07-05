@@ -3,14 +3,12 @@ package com.springboot.service;
 import com.springboot.dto.UserDTO;
 import com.springboot.entities.ERole;
 import com.springboot.entities.Friendship;
-import com.springboot.entities.Role;
 import com.springboot.entities.User;
 import com.springboot.payload.request.SignupRequest;
 import com.springboot.payload.request.UserUpdateRequest;
 import com.springboot.payload.response.AvatarResponse;
 import com.springboot.payload.response.ImagePostResponse;
 import com.springboot.repository.FriendshipRepository;
-import com.springboot.repository.RoleRepository;
 import com.springboot.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
@@ -41,8 +39,6 @@ public class UserServiceTest {
     @Mock
     private FriendshipRepository friendshipRepository;
     @Mock
-    private RoleRepository roleRepository;
-    @Mock
     private ImageService imageService;
 
     @InjectMocks
@@ -52,7 +48,6 @@ public class UserServiceTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
-
 
 
     @Test
@@ -153,10 +148,6 @@ public class UserServiceTest {
         Mockito.when(userRepository.existsByUsername(Mockito.eq("username"))).thenReturn(false);
         Mockito.when(userRepository.existsByEmail(Mockito.eq("user@example.com"))).thenReturn(false);
 
-        Role userRole = new Role();
-        userRole.setName(ERole.ROLE_USER);
-        Mockito.when(roleRepository.findByName(Mockito.eq(ERole.ROLE_USER))).thenReturn(Optional.of(userRole));
-
         Mockito.when(passwordEncoder.encode(Mockito.eq("password"))).thenReturn("encoded-password");
 
         // Act
@@ -167,8 +158,6 @@ public class UserServiceTest {
         Assertions.assertEquals("username", result.getUsername());
         Assertions.assertEquals("user@example.com", result.getEmail());
         Assertions.assertEquals("encoded-password", result.getPassword());
-        Assertions.assertEquals(1, result.getRoles().size());
-        Assertions.assertTrue(result.getRoles().contains(userRole));
         Mockito.verify(userRepository).save(Mockito.any(User.class));
     }
 

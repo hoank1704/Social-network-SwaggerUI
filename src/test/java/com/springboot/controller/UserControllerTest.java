@@ -54,6 +54,9 @@ public class UserControllerTest {
     @InjectMocks
     private UserController userController;
 
+    @Mock
+    Authentication authentication;
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
@@ -195,7 +198,7 @@ public class UserControllerTest {
         when(userService.getUserById(id)).thenReturn(userDTO);
 
         // Act
-        ResponseEntity<?> response = userController.getUserById(id);
+        ResponseEntity<?> response = userController.getUserById(id, authentication);
 
         // Assert
         verify(userService, times(1)).getUserById(id);
