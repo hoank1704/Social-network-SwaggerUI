@@ -5,6 +5,7 @@ import java.util.Date;
 import com.springboot.entities.ResetToken;
 import com.springboot.repository.ResetTokenRepository;
 import com.springboot.security.services.UserDetailsImpl;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +21,6 @@ import javax.crypto.SecretKey;
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    @Value("${hoank17.app.jwtSecret}")
-    private String jwtSecret;
-
     @Value("${hoank17.app.jwtExpirationMs}")
     private Integer jwtExpirationMs;
 
@@ -32,12 +30,14 @@ public class JwtUtils {
     @Autowired
     private ResetTokenRepository resetTokenRepository;
 
+    @Getter
     SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
     // Lấy token để đổi password
     public String generateJwtTokenToChangePassword(String email) {
         String jwtToken = Jwts.builder()
                 .setSubject(email)
+                .claim("type", "password_reset")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpChangePass))
                 .signWith(key, SignatureAlgorithm.HS512)
@@ -64,8 +64,9 @@ public class JwtUtils {
 
     public Long extractUserId(String token) {
         try {
-            Claims claims = Jwts.parser()
+            Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key)
+                    .build()
                     .parseClaimsJws(token.replace("Bearer ", ""))
                     .getBody();
 

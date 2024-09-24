@@ -1,5 +1,7 @@
 package com.springboot.security.jwt;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import java.io.IOException;
 
 import com.springboot.security.services.UserDetailsServiceImpl;
@@ -20,29 +22,33 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class AuthTokenFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtils jwtUtils;
-    @Autowired
-    private UserDetailsServiceImpl userDetailsService;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthTokenFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        try {
-            String jwt = parseJwt(request);
-            if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-                String subject = jwtUtils.getSubjectFromJwtToken(jwt);
+        String token = parseJwt(request);
 
-                UserDetails userDetails = userDetailsService.loadUserByEmailOrUsername(subject);
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        if (token != null) {
+            try {
+                Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(jwtUtils.getKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
 
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                String tokenType = claims.get("type", String.class);
+
+                if ("password_reset".equals(tokenType) && !request.getRequestURI().equals("/resetPassword")) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.getWriter().write("Token cannot be used for this API.");
+                    return;
+                }
+            } catch (Exception e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write("Invalid token.");
+                return;
             }
-        } catch (Exception e) {
-            LOGGER.error("Cannot set user authentication: {}", e);
         }
         filterChain.doFilter(request, response);
     }
@@ -51,7 +57,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         String headerAuth = request.getHeader("Authorization");
 
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7, headerAuth.length());
+            return headerAuth.substring(7);
         }
         return null;
     }

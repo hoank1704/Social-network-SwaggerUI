@@ -11,6 +11,8 @@ import com.springboot.security.services.UserDetailsImpl;
 import com.springboot.service.FriendshipService;
 import com.springboot.service.ImageService;
 import com.springboot.service.UserService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,10 +47,6 @@ public class UserController {
     private JwtUtils jwtUtils;
     @Autowired
     private ImageService imageService;
-    @Autowired
-    private FriendshipService friendshipService;
-    @Autowired
-    private HttpServletRequest request;
 
     // Xuất file excel
     @SecurityRequirement(name = "Bearer Authentication")
@@ -85,13 +83,28 @@ public class UserController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/resetPassword")
     public ResponseEntity<String> resetPassword(@RequestParam("newPassword") String newPassword,
-                                                @RequestParam("token") String token,
-                                                Principal principal) {
-        String username = principal.getName();
-        if (userService.resetPassword(newPassword, username, token)) {
-            return ResponseEntity.ok("Password reset successfully.");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid or expired token.");
+                                                @RequestParam("token") String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                .setSigningKey(jwtUtils.getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+            String tokenType = claims.get("type", String.class);
+            if (!"password_reset".equals(tokenType)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid token type.");
+            }
+
+            String email = claims.getSubject();
+            if (userService.resetPassword(newPassword, email, token)) {
+                return ResponseEntity.ok("Password reset successfully.");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid or expired token.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid token.");
         }
     }
 

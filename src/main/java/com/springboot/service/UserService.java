@@ -8,11 +8,17 @@ import com.springboot.payload.response.AvatarResponse;
 import com.springboot.repository.FriendshipRepository;
 import com.springboot.repository.ResetTokenRepository;
 import com.springboot.repository.UserRepository;
+import com.springboot.security.jwt.JwtUtils;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,18 +31,20 @@ import java.util.Set;
 import static com.springboot.entities.ERole.ROLE_USER;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-    @Autowired
-    private FriendshipRepository friendshipRepository;
-    @Autowired
-    private ImageService imageService;
-
-    @Autowired
-    private ResetTokenRepository resetTokenRepository;
+    
+    private final UserRepository userRepository;
+    
+    private final PasswordEncoder passwordEncoder;
+    
+    private final FriendshipRepository friendshipRepository;
+    
+    private final ImageService imageService;
+    
+    private final ResetTokenRepository resetTokenRepository;
+    
+    private final JwtUtils jwtUtils;
 
     public User findByUsername(String username) {
         // Tìm kiếm user theo username
@@ -44,24 +52,36 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với tên đăng nhập: " + username));
     }
 
-    public boolean resetPassword(String newPassword, String username, String token) {
-        Optional<User> optionalUser = userRepository.findByUsername(username);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
+    public boolean resetPassword(String newPassword, String email, String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                .setSigningKey(jwtUtils.getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
 
-            // Kiểm tra token và xác thực
-            ResetToken resetToken = resetTokenRepository.findByToken(token);
-            if (null == resetToken || resetToken.isUsed()) {  // nếu không tồn tại hoặc đã được sd
+            if (!"password_reset".equals(claims.get("type", String.class))) {
                 return false;
             }
-            // update trạng thái token đã được sd
-            resetToken.setUsed(true);
-            resetTokenRepository.save(resetToken);
 
-            // change password
-            user.setPassword(passwordEncoder.encode(newPassword));
-            userRepository.save(user);
-            return true;
+            Optional<User> optionalUser = userRepository.findByEmail(email);
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get();
+
+                ResetToken resetToken = resetTokenRepository.findByToken(token);
+                if (null == resetToken || resetToken.isUsed()) {
+                    return false;
+                }
+                resetToken.setUsed(true);
+                resetTokenRepository.save(resetToken);
+
+                user.setPassword(passwordEncoder.encode(newPassword));
+                userRepository.save(user);
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+            return false;
         }
         return false;
     }
