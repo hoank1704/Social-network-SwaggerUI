@@ -79,25 +79,6 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Sai mật khẩu hoặc tên đăng nhập");
         }
     }
-//    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-//        try {
-//            otpService.deleteOtpByUsername(loginRequest.getUsername());
-//            // Thực hiện xác thực người dùng
-//            Authentication authentication = authenticationManager.authenticate(
-//                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-//
-//            // Thiết lập thông tin xác thực trong SecurityContextHolder
-//            SecurityContextHolder.getContext().setAuthentication(authentication);
-//
-//            // Tạo mã OTP và lưu vào cơ sở dữ liệu
-//            Otp otp = otpService.generateOtp(loginRequest.getUsername());
-//
-//            // Trả về mã OTP cho người dùng
-//            return ResponseEntity.ok(new OtpResponse(otp.getOtpCode()));
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body("Sai mật khẩu hoặc tên đăng nhập");
-//        }
-//    }
 
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/verify-otp")
@@ -116,31 +97,6 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("OTP is invalid or has expired");
         }
     }
-//    public ResponseEntity<?> verifyOtpAndGenerateToken(@Valid @RequestBody VerifyOtpRequest verifyOtpRequest) {
-//        // Xác thực mã OTP
-//        boolean isOtpValid = otpService.verifyOtp(verifyOtpRequest.getUsername(), verifyOtpRequest.getOtpCode());
-//
-//        if (isOtpValid) {
-//            // Tải thông tin người dùng bằng username
-//            UserDetails userDetails = userDetailsService.loadUserByUsername(verifyOtpRequest.getUsername());
-//
-//            // Tạo token JWT
-//            String jwt = jwtUtils.generateJwtToken(new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
-//
-//            // Lấy thông tin bổ sung của người dùng
-//            Long id = ((UserDetailsImpl) userDetails).getId();
-//            String username = userDetails.getUsername();
-//            String email = ((UserDetailsImpl) userDetails).getEmail();
-//
-//            // Tạo JwtResponse
-//            JwtResponse jwtResponse = new JwtResponse(jwt, id, username, email);
-//
-//            // Trả về JwtResponse
-//            return ResponseEntity.ok(jwtResponse);
-//        } else {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("OTP is invalid or has expired");
-//        }
-//    }
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
