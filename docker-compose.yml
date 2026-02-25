@@ -14,7 +14,7 @@ services:
       - mysql-data:/var/lib/mysql
 
   app:
-    build: .
+    image: hoank174/social-network-app:latest
     container_name: social-app
     restart: always
     depends_on:
