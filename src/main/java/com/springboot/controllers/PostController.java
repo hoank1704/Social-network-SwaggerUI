@@ -40,7 +40,7 @@ public class PostController {
     @Autowired
     private ImageService imageService;
 
-    // Timeline
+    // Timeline sjhdfgs
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/timeline")
     public ResponseEntity<?> getTimeline(Principal principal,
